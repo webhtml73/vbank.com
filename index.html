@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VBank</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+  body { background: #0f1220; color: #eef1ff; min-height: 100vh; display: flex; justify-content: center; }
+  .app { width: 100%; max-width: 420px; min-height: 100vh; position: relative; padding-bottom: 80px; }
+
+  header { padding: 20px 20px 8px; font-size: 22px; font-weight: 700; color: #8b5cf6; }
+  .screen { display: none; padding: 10px 20px; }
+  .screen.active { display: block; }
+
+  .card {
+    background: linear-gradient(135deg, #6d28d9, #a855f7 60%, #ec4899);
+    border-radius: 18px; padding: 20px; margin: 12px 0;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, .35);
+  }
+  .card .num { font-size: 20px; letter-spacing: 2px; margin: 14px 0; font-family: monospace; }
+  .card .row { display: flex; gap: 24px; font-size: 14px; opacity: .9; }
+  .card .row b { display: block; font-size: 10px; opacity: .7; text-transform: uppercase; }
+  .card .holder { margin-top: 12px; font-size: 15px; text-transform: uppercase; }
+  .cvc-btn { margin-top: 10px; background: rgba(255,255,255,.2); border: none; color: #fff;
+    padding: 6px 12px; border-radius: 10px; cursor: pointer; font-size: 13px; }
+
+  .balance { font-size: 30px; font-weight: 700; margin: 16px 0; }
+  .balance span { font-size: 16px; opacity: .6; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .tab { flex: 1; padding: 10px; border-radius: 12px; border: none; background: #1c2140;
+    color: #aab; cursor: pointer; font-size: 14px; }
+  .tab.active { background: #6d28d9; color: #fff; }
+
+  label { display: block; font-size: 13px; color: #9aa0c3; margin: 12px 0 6px; }
+  input, select {
+    width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid #2a3057;
+    background: #1c2140; color: #eef1ff; font-size: 15px; outline: none;
+  }
+  input:focus { border-color: #8b5cf6; }
+  .err { color: #f87171; font-size: 13px; margin-top: 8px; min-height: 18px; }
+
+  .btn {
+    width: 100%; padding: 14px; border: none; border-radius: 14px; margin-top: 16px;
+    background: linear-gradient(135deg, #7c3aed, #ec4899); color: #fff; font-size: 16px;
+    font-weight: 600; cursor: pointer;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn.secondary { background: #1c2140; color: #c9cdf0; }
+
+  nav {
+    position: fixed; bottom: 0; width: 100%; max-width: 420px;
+    display: flex; background: #161a33; border-top: 1px solid #262c55;
+  }
+  nav button {
+    flex: 1; padding: 14px 0 12px; background: none; border: none; color: #7a80a8;
+    font-size: 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  }
+  nav button.active { color: #a855f7; }
+  nav .icon { font-size: 20px; }
+
+  .history { margin-top: 20px; }
+  .history .item {
+    display: flex; justify-content: space-between; padding: 12px 0;
+    border-bottom: 1px solid #23294d; font-size: 14px;
+  }
+  .history .plus { color: #4ade80; }
+  .history .minus { color: #f87171; }
+  .muted { color: #7a80a8; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Регистрация -->
+  <div id="regScreen" class="screen active" style="padding-top:60px">
+    <h1 style="font-size:34px; color:#a855f7; text-align:center">VBank</h1>
+    <p class="muted" style="text-align:center; margin:10px 0 24px">Регистрация нового клиента</p>
+
+    <label>Номер карты (16 цифр)</label>
+    <input id="regCard" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
+
+    <label>Телефон</label>
+    <input id="regPhone" placeholder="+7 900 000-00-00" maxlength="16" inputmode="tel">
+
+    <label>Почта</label>
+    <input id="regEmail" type="email" placeholder="mail@example.com">
+
+    <label>ФИ</label>
+    <input id="regName" placeholder="Иванов Иван">
+
+    <div class="err" id="regErr"></div>
+    <button class="btn" onclick="register()">Создать аккаунт</button>
+    <p class="muted" style="text-align:center; margin-top:14px">Срок действия и CVC сгенерируются автоматически</p>
+  </div>
+
+  <!-- Домой -->
+  <div id="homeScreen" class="screen">
+    <header>Домой</header>
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center">
+        <b style="font-size:16px">VBANK</b>
+        <span>💳</span>
+      </div>
+      <div class="num" id="cardNum"></div>
+      <div class="row">
+        <div><b>Срок</b> <span id="cardExp"></span></div>
+        <div><b>CVC</b> <span id="cardCvc"></span></div>
+      </div>
+      <div class="holder" id="cardHolder"></div>
+      <button class="cvc-btn" onclick="toggleCvc()">Показать CVC</button>
+    </div>
+
+    <div class="balance">Баланс: <span id="balance"></span> <span>₽</span></div>
+
+    <button class="btn" onclick="go('transfer')">Перевести</button>
+    <button class="btn secondary" onclick="go('transfer'); switchTab('topup')">Пополнить</button>
+
+    <div class="history">
+      <h3 style="margin-bottom:6px">История</h3>
+      <div id="historyList"><p class="muted">Пока пусто</p></div>
+    </div>
+  </div>
+
+  <!-- Перевод / Пополнение -->
+  <div id="transferScreen" class="screen">
+    <header>Операции</header>
+
+    <div class="tabs">
+      <button class="tab active" id="tabSend" onclick="switchTab('send')">Перевод</button>
+      <button class="tab" id="tabTopup" onclick="switchTab('topup')">Пополнение</button>
+    </div>
+
+    <!-- Перевод -->
+    <div id="sendBlock">
+      <div class="tabs">
+        <button class="tab" id="byCardBtn" onclick="setMethod('card')">По карте</button>
+        <button class="tab" id="byPhoneBtn" onclick="setMethod('phone')">По телефону</button>
+      </div>
+
+      <div id="cardInput">
+        <label>Номер карты получателя</label>
+        <input id="toCard" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
+      </div>
+      <div id="phoneInput" style="display:none">
+        <label>Телефон получателя</label>
+        <input id="toPhone" placeholder="+7 900 000-00-00" maxlength="16" inputmode="tel">
+      </div>
+
+      <label>Сумма, ₽</label>
+      <input id="sendAmount" type="number" placeholder="0" inputmode="decimal">
+
+      <div class="err" id="sendErr"></div>
+      <button class="btn" onclick="doSend()">Перевести</button>
+    </div>
+
+    <!-- Пополнение -->
+    <div id="topupBlock" style="display:none">
+      <label>Откуда (источник пополнения)</label>
+      <select id="fromSource">
+        <option>Другая карта</option>
+        <option>Наличные через банкомат</option>
+        <option>СБП</option>
+        <option>Работодатель</option>
+      </select>
+      <input id="fromDetail" placeholder="Реквизиты источника (карта, организация...)" style="margin-top:10px">
+
+      <label>Сумма, ₽</label>
+      <input id="topupAmount" type="number" placeholder="0" inputmode="decimal">
+
+      <div class="err" id="topupErr"></div>
+      <button class="btn" onclick="doTopup()">Пополнить</button>
+    </div>
+  </div>
+
+  <!-- Настройки -->
+  <div id="settingsScreen" class="screen">
+    <header>Настройки</header>
+    <h3 style="margin:12px 0">Данные аккаунта</h3>
+    <p class="muted">ФИ: <span id="setName" style="color:#eef1ff"></span></p>
+    <p class="muted">Телефон: <span id="setPhone" style="color:#eef1ff"></span></p>
+    <p class="muted">Почта: <span id="setEmail" style="color:#eef1ff"></span></p>
+    <p class="muted">Карта: <span id="setCard" style="color:#eef1ff"></span></p>
+    <p class="muted">Срок: <span id="setExp" style="color:#eef1ff"></span></p>
+
+    <button class="btn secondary" onclick="toggleCvc()" style="margin-top:20px">Показать / скрыть CVC</button>
+    <button class="btn" onclick="resetAccount()">Сбросить аккаунт</button>
+    <p class="muted" style="text-align:center; margin-top:10px">Удалит все данные из localStorage</p>
+  </div>
+
+  <nav>
+    <button id="navHome" class="active" onclick="go('home')"><span class="icon">🏠</span>Домой</button>
+    <button id="navTransfer" onclick="go('transfer')"><span class="icon">💸</span>Перевод</button>
+    <button id="navSettings" onclick="go('settings')"><span class="icon">⚙️</span>Настройки</button>
+  </nav>
+</div>
+
+<script>
+const KEY = 'vbank_account';
+let acc = JSON.parse(localStorage.getItem(KEY) || 'null');
+let showCvc = false;
+let method = 'card';
+let currentTab = 'send';
+
+// ---------- регистрация ----------
+function register() {
+  const card = document.getElementById('regCard').value.replace(/\D/g, '');
+  const phone = document.getElementById('regPhone').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const name = document.getElementById('regName').value.trim();
+  const err = document.getElementById('regErr');
+
+  if (card.length !== 16) return err.textContent = 'Номер карты должен содержать 16 цифр';
+  if (!/^(\+?\d[\d\s-]{9,14})$/.test(phone)) return err.textContent = 'Введите корректный телефон';
+  if (!/^\S+@\S+\.\S+$/.test(email)) return err.textContent = 'Введите корректную почту';
+  if (name.split(/\s+/).length < 2) return err.textContent = 'Укажите ФИ (минимум имя и фамилию)';
+
+  // автогенерация срока действия (3 года вперёд) и CVC
+  const d = new Date();
+  const expMM = String(d.getMonth() + 1).padStart(2, '0');
+  const expYY = String(d.getFullYear() + 3).slice(-2);
+  const cvc = String(Math.floor(100 + Math.random() * 900));
+
+  acc = {
+    card: formatCard(card),
+    exp: expMM + '/' + expYY,
+    cvc,
+    phone,
+    email,
+    name,
+    balance: 0,
+    history: []
+  };
+  localStorage.setItem(KEY, JSON.stringify(acc));
+  render();
+  go('home');
+}
+
+// ---------- утилиты ----------
+function formatCard(n) {
+  return n.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+}
+function masked(card) {
+  const groups = card.split(' ');
+  return groups.slice(0, 2).join(' ') + ' •• •• ' + groups[3];
+}
+function save() { localStorage.setItem(KEY, JSON.stringify(acc)); }
+
+function addHistory(type, text, amount) {
+  acc.history.unshift({
+    type, text, amount,
+    date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+  });
+  save();
+}
+
+// ---------- навигация ----------
+function go(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screen + 'Screen').classList.add('active');
+  ['Home', 'Transfer', 'Settings'].forEach(n =>
+    document.getElementById('nav' + n).classList.toggle('active', n.toLowerCase() === screen));
+  render();
+}
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('sendBlock').style.display = tab === 'send' ? '' : 'none';
+  document.getElementById('topupBlock').style.display = tab === 'topup' ? '' : 'none';
+  document.getElementById('tabSend').classList.toggle('active', tab === 'send');
+  document.getElementById('tabTopup').classList.toggle('active', tab === 'topup');
+}
+
+function setMethod(m) {
+  method = m;
+  document.getElementById('byCardBtn').classList.toggle('active', m === 'card');
+  document.getElementById('byPhoneBtn').classList.toggle('active', m === 'phone');
+  document.getElementById('cardInput').style.display = m === 'card' ? '' : 'none';
+  document.getElementById('phoneInput').style.display = m === 'phone' ? '' : 'none';
+}
+
+function toggleCvc() {
+  showCvc = !showCvc;
+  document.getElementById('cardCvc').textContent = showCvc ? acc.cvc : '•••';
+}
+
+// ---------- операции ----------
+function doSend() {
+  const err = document.getElementById('sendErr');
+  err.textContent = '';
+  const to = method === 'card'
+    ? document.getElementById('toCard').value.replace(/\D/g, '')
+    : document.getElementById('toPhone').value.trim();
+  const amount = parseFloat(document.getElementById('sendAmount').value);
+
+  if (method === 'card' && to.length !== 16) return err.textContent = 'Введите номер карты получателя (16 цифр)';
+  if (method === 'phone' && !/^(\+?\d[\d\s-]{9,14})$/.test(to)) return err.textContent = 'Введите корректный телефон';
+  if (!amount || amount <= 0) return err.textContent = 'Введите сумму больше нуля';
+  if (amount > acc.balance) return err.textContent = 'Недостаточно средств на счёте';
+
+  acc.balance -= amount;
+  addHistory('minus', (method === 'card' ? 'Перевод на карту ' + formatCard(to) : 'Перевод на телефон ' + to), amount);
+  save();
+  document.getElementById('toCard').value = '';
+  document.getElementById('toPhone').value = '';
+  document.getElementById('sendAmount').value = '';
+  render();
+  err.style.color = '#4ade80';
+  err.textContent = 'Перевод на ' + amount.toFixed(2) + ' ₽ выполнен ✓';
+}
+
+function doTopup() {
+  const err = document.getElementById('topupErr');
+  err.textContent = '';
+  err.style.color = '#f87171';
+  const src = document.getElementById('fromSource').value;
+  const detail = document.getElementById('fromDetail').value.trim();
+  const amount = parseFloat(document.getElementById('topupAmount').value);
+
+  if (!detail) return err.textContent = 'Укажите, откуда пополняете';
+  if (!amount || amount <= 0) return err.textContent = 'Введите сумму больше нуля';
+
+  acc.balance += amount;
+  addHistory('plus', 'Пополнение — ' + src + ' (' + detail + ')', amount);
+  save();
+  document.getElementById('fromDetail').value = '';
+  document.getElementById('topupAmount').value = '';
+  render();
+  err.style.color = '#4ade80';
+  err.textContent = 'Счёт пополнен на ' + amount.toFixed(2) + ' ₽ ✓';
+}
+
+function resetAccount() {
+  if (!confirm('Удалить аккаунт и все данные?')) return;
+  localStorage.removeItem(KEY);
+  location.reload();
+}
+
+// ---------- отрисовка ----------
+function render() {
+  if (!acc) return;
+  document.getElementById('cardNum').textContent = masked(acc.card);
+  document.getElementById('cardExp').textContent = acc.exp;
+  document.getElementById('cardCvc').textContent = showCvc ? acc.cvc : '•••';
+  document.getElementById('cardHolder').textContent = acc.name;
+  document.getElementById('balance').textContent = acc.balance.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  document.getElementById('setName').textContent = acc.name;
+  document.getElementById('setPhone').textContent = acc.phone;
+  document.getElementById('setEmail').textContent = acc.email;
+  document.getElementById('setCard').textContent = acc.card;
+  document.getElementById('setExp').textContent = acc.exp;
+
+  const list = document.getElementById('historyList');
+  if (acc.history.length === 0) {
+    list.innerHTML = '<p class="muted">Пока пусто</p>';
+  } else {
+    list.innerHTML = acc.history.slice(0, 20).map(h =>
+      `<div class="item"><div>${h.text}<br><span class="muted">${h.date}</span></div>
+       <div class="${h.type}">${h.type === 'plus' ? '+' : '−'}${h.amount.toLocaleString('ru-RU', { minimumFractionDigits: 2 })} ₽</div></div>`
+    ).join('');
+  }
+}
+
+// маски ввода
+document.getElementById('regCard').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+});
+document.getElementById('toCard').addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
+});
+
+// старт
+if (acc) { document.getElementById('regScreen').classList.remove('active'); go('home'); }
+</script>
+</body>
+</html>
