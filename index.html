@@ -7,30 +7,22 @@
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: #ffffff; color: #1a1a1a; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; font-family: 'Inter', system-ui, sans-serif; }
-  .app { width: 100%; max-width: 430px; padding: 24px; }
-
+  .app { width: 100%; max-width: 430px; padding: 24px; padding-bottom: 90px; }
   .screen { display: none; }
   .screen.active { display: block; }
-
   header { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
   .subtitle { font-size: 13px; color: #8a8a8a; margin-bottom: 20px; }
 
   .card {
-    background: #ffffff;
-    border-radius: 20px;
-    padding: 24px;
-    margin-bottom: 20px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    border-top: 4px solid #f31828;
+    background: #fff; border-radius: 20px; padding: 24px; margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06); border-top: 4px solid #f31828;
   }
-  .card.accent { border-top-color: #c00e22; }
-
   .card .num { font-size: 16px; letter-spacing: 3px; font-family: monospace; margin: 14px 0; color: #555; }
   .card .row { display: flex; gap: 24px; font-size: 13px; color: #777; margin-top: 12px; }
   .card .row b { display: block; font-size: 10px; text-transform: uppercase; color: #999; }
   .card .holder { margin-top: 14px; font-size: 14px; text-transform: uppercase; color: #555; }
 
-  .balance-block { display: flex; align-items: center; gap: 10px; margin: 24px 0; }
+  .balance-block { display: flex; align-items: baseline; gap: 10px; margin: 24px 0; }
   .balance { font-size: 38px; font-weight: 700; color: #f31828; }
   .balance-tag { font-size: 16px; color: #555; }
 
@@ -40,71 +32,131 @@
     font-weight: 600; cursor: pointer; transition: transform 0.12s;
   }
   .btn:active { transform: scale(0.98); }
-  .btn.secondary {
-    background: #ffffff; color: #f31828; border: 1px solid #e0e0e0;
-  }
-  .btn.accent { background: #f31828; }
+  .btn.secondary { background: #fff; color: #f31828; border: 1px solid #e0e0e0; }
 
   .tab-bar { display: flex; gap: 10px; margin-bottom: 20px; }
-  .tab {
-    flex: 1; padding: 12px; border-radius: 14px; border: none; background: #f0f0f0;
-    color: #555; font-size: 13px; cursor: pointer;
-  }
+  .tab { flex: 1; padding: 12px; border-radius: 14px; border: none; background: #f0f0f0; color: #555; font-size: 13px; cursor: pointer; }
   .tab.active { background: #f31828; color: #fff; }
 
   label { display: block; font-size: 13px; color: #555; margin: 14px 0 6px; }
   input, select {
     width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid #e0e0e0;
-    background: #ffffff; color: #1a1a1a; font-size: 15px; outline: none;
+    background: #fff; color: #1a1a1a; font-size: 15px; outline: none;
   }
   input:focus { border-color: #f31828; }
   .err { color: #c00e22; font-size: 13px; margin-top: 8px; min-height: 18px; }
   .ok { color: #389e43; }
 
   .promo-card {
-    background: #f8f8f8; border: 1px solid #e0e0e0; border-radius: 16px;
-    padding: 18px; margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff5f5, #ffe9ec);
+    border: 1px solid #ffd0d6; border-radius: 16px; padding: 18px; margin-bottom: 20px;
   }
-  .promo-card h3 { margin-bottom: 8px; font-size: 15px; }
+  .promo-card h3 { margin-bottom: 6px; font-size: 15px; color: #c00e22; }
   .promo-card p { font-size: 12px; color: #777; margin-bottom: 12px; }
   .promo-btn {
     width: 100%; padding: 12px; border: none; border-radius: 12px;
     background: #f31828; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
   }
-  .promo-card .countdown { font-size: 11px; color: #8a8a8a; margin-top: 8px; }
+  .promo-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
+  .countdown { font-size: 11px; color: #8a8a8a; margin-top: 8px; }
 
-  .game-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 16px; }
+  /* Горизонтальная лента игр */
+  .games-scroll {
+    display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 4px 4px 12px; -webkit-overflow-scrolling: touch;
+  }
+  .games-scroll::-webkit-scrollbar { display: none; }
+  .games-scroll { scrollbar-width: none; }
   .game-card {
-    background: #ffffff; border: 1px solid #e0e0e0; border-radius: 16px;
-    padding: 18px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    min-width: 280px; max-width: 280px; scroll-snap-align: start;
+    background: #fff; border: 1px solid #ececec; border-radius: 20px;
+    padding: 18px; box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+    display: flex; flex-direction: column;
   }
-  .game-card h4 { margin-bottom: 10px; font-size: 15px; }
-  .game-card .small { font-size: 12px; color: #777; margin-top: 6px; }
-  .game-card button {
-    width: 100%; padding: 12px; border: none; border-radius: 12px;
-    background: #f31828; color: #fff; font-size: 14px; cursor: pointer; margin-top: 8px;
+  .game-card h3 { font-size: 16px; margin-bottom: 4px; }
+  .game-card .small { font-size: 12px; color: #888; margin-bottom: 12px; }
+  .game-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 150px; }
+  .game-msg { font-size: 13px; color: #555; margin-top: 10px; min-height: 18px; text-align: center; }
+
+  /* Колесо */
+  .wheel-wrap { position: relative; width: 170px; height: 170px; }
+  .wheel {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: conic-gradient(
+      #f31828 0deg 30deg, #ffffff 30deg 60deg, #f31828 60deg 90deg,
+      #ffffff 90deg 120deg, #f31828 120deg 150deg, #ffffff 150deg 180deg,
+      #f31828 180deg 210deg, #ffffff 210deg 240deg, #f31828 240deg 270deg,
+      #ffffff 270deg 300deg, #f31828 300deg 330deg, #ffffff 330deg 360deg);
+    border: 5px solid #f31828;
+    box-shadow: 0 4px 14px rgba(243,24,40,0.25);
+    transition: transform 3s cubic-bezier(0.15, 0.9, 0.25, 1);
   }
-  .game-card button:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
+  .wheel-pointer {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    font-size: 22px; z-index: 2; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+  }
+  .wheel-label {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 44px; height: 44px; border-radius: 50%; background: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; color: #f31828; font-size: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  /* Слоты */
+  .slots { display: flex; gap: 10px; }
+  .reel {
+    width: 56px; height: 66px; background: #fff5f5; border: 2px solid #f31828;
+    border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    font-size: 30px; overflow: hidden;
+  }
+  .reel.spinning { animation: reelShake 0.12s infinite; }
+  @keyframes reelShake { 0% { transform: translateY(0); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0); } }
+
+  /* Кликер */
+  .coin {
+    font-size: 64px; cursor: pointer; user-select: none;
+    transition: transform 0.1s; filter: drop-shadow(0 4px 6px rgba(243,24,40,0.3));
+  }
+  .coin:active { transform: scale(0.85); }
+  .float-plus {
+    position: absolute; font-weight: 700; color: #389e43; font-size: 16px;
+    animation: floatUp 0.7s ease-out forwards; pointer-events: none;
+  }
+  @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-36px); } }
+  .coin-wrap { position: relative; }
+
+  /* Угадай число */
+  .guess-btns { display: flex; gap: 8px; }
+  .guess-btns button {
+    width: 42px; height: 42px; border-radius: 50%; border: 2px solid #f31828;
+    background: #fff; color: #f31828; font-size: 16px; font-weight: 700; cursor: pointer;
+  }
+  .guess-btns button.was-correct { background: #389e43; border-color: #389e43; color: #fff; }
+  .guess-btns button.was-wrong { background: #e0e0e0; border-color: #e0e0e0; color: #999; }
+
+  .g-btn {
+    width: 100%; padding: 12px; border: none; border-radius: 12px; margin-top: 12px;
+    background: #f31828; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .g-btn:disabled { background: #e0e0e0; color: #999; cursor: not-allowed; }
 
   nav {
-    position: fixed; bottom: 0; left: 0; width: 100%; max-width: 430px;
-    background: #ffffff; border-top: 1px solid #e0e0e0; display: flex; gap: 8px;
-    padding: 12px 0 14px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px; background: #fff; border-top: 1px solid #e0e0e0;
+    display: flex; gap: 8px; padding: 12px 0 14px; box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
   }
   nav button {
-    flex: 1; padding: 0; background: none; border: none; color: #555;
-    font-size: 12px; display: flex; flex-direction: column; align-items: center; gap: 4px;
-    cursor: pointer; border-radius: 14px; transition: 0.2s;
+    flex: 1; background: none; border: none; color: #555; font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;
   }
   nav button.active { color: #f31828; font-weight: 600; }
 
   .history { margin-top: 20px; }
-  .history .item { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
+  .history .item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #ececec; font-size: 14px; }
   .history .plus { color: #389e43; }
   .history .minus { color: #c00e22; }
   .muted { color: #8a8a8a; font-size: 13px; }
-
-  @media (max-width: 400px) { .game-grid { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -114,7 +166,7 @@
   <!-- Регистрация -->
   <div id="regScreen" class="screen active">
     <h1 style="font-size:32px; color:#f31828; text-align:center">VBank</h1>
-    <p class="subtitle">Регистрация</p>
+    <p class="subtitle" style="text-align:center">Регистрация нового клиента</p>
     <label>Номер карты (16 цифр)</label>
     <input id="regCard" placeholder="0000 0000 0000 0000" maxlength="19" inputmode="numeric">
     <label>Телефон</label>
@@ -131,7 +183,7 @@
   <!-- Домой -->
   <div id="homeScreen" class="screen">
     <header>🏠 Домой</header>
-    <div class="card accent">
+    <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px">
         <b>VBANK</b> <span>💳</span>
       </div>
@@ -147,7 +199,7 @@
       <span class="balance" id="balance">0.00</span> <span class="balance-tag">₽</span>
     </div>
     <button class="btn" onclick="go('transfer')">💸 Перевод</button>
-    <button class="btn" onclick="go('earn')">🎮 Заработать</button>
+    <button class="btn secondary" onclick="go('earn')">🎮 Заработать</button>
   </div>
 
   <!-- Перевод / Пополнение -->
@@ -157,7 +209,6 @@
       <button class="tab active" id="tabSend" onclick="switchTab('send')">Перевод</button>
       <button class="tab" id="tabTopup" onclick="switchTab('topup')">Пополнение</button>
     </div>
-
     <div id="sendBlock">
       <div class="tab-bar" style="margin-bottom:16px">
         <button class="tab" id="byCardBtn" onclick="setMethod('card')">По карте</button>
@@ -172,11 +223,10 @@
         <input id="toPhone" placeholder="+7 900 000-00-00" maxlength="16" inputmode="tel">
       </div>
       <label>Сумма, ₽</label>
-      <input id="sendAmount" type="number" placeholder="0" inputmode="decimal" value="0">
+      <input id="sendAmount" type="number" placeholder="0" inputmode="decimal">
       <div class="err" id="sendErr"></div>
       <button class="btn" onclick="doSend()">Перевести</button>
     </div>
-
     <div id="topupBlock" style="display:none">
       <label>Источник</label>
       <select id="fromSource">
@@ -187,48 +237,82 @@
       </select>
       <input id="fromDetail" placeholder="Реквизиты" style="margin-top:10px">
       <label>Сумма, ₽</label>
-      <input id="topupAmount" type="number" placeholder="0" inputmode="decimal" value="0">
+      <input id="topupAmount" type="number" placeholder="0" inputmode="decimal">
       <div class="err" id="topupErr"></div>
       <button class="btn" onclick="doTopup()">Пополнить</button>
     </div>
   </div>
 
-  <!-- Заработок: «реклама» + игры -->
+  <!-- Заработок -->
   <div id="earnScreen" class="screen">
     <header>🎮 Заработок</header>
-    <p class="subtitle">Только для развлечения, суммы небольшие</p>
+    <p class="subtitle">Листай игры свайпом влево →</p>
 
     <div class="promo-card">
-      <h3>📺 Акция («видео»)</h3>
-      <p>Нажимай — получишь 3 ₽. Кулдаун 10 минут.</p>
-      <button class="promo-btn" onclick="doPromo()">Получить 3 ₽</button>
+      <h3>📺 Спецпредложение</h3>
+      <p>«Посмотри видео» — и получи 3 ₽ на счёт. Кулдаун 10 минут.</p>
+      <button class="promo-btn" id="promoBtn" onclick="doPromo()">Получить 3 ₽</button>
       <div class="countdown" id="promoCountdown"></div>
     </div>
 
-    <div class="game-grid">
+    <div class="games-scroll">
+
+      <!-- Колесо -->
       <div class="game-card">
         <h3>🎡 Колесо фортуны</h3>
-        <p class="small">1–30 ₽. Один раз в час.</p>
-        <button id="wheelBtn" onclick="spinWheel()">Крутить</button>
-        <p id="wheelResult" style="margin-top:10px; font-size:18px; font-weight:700;"></p>
+        <p class="small">От 1 до 30 ₽. Раз в час.</p>
+        <div class="game-area">
+          <div class="wheel-wrap">
+            <div class="wheel-pointer">🔻</div>
+            <div class="wheel" id="wheel"></div>
+            <div class="wheel-label">SPIN</div>
+          </div>
+        </div>
+        <div class="game-msg" id="wheelMsg"></div>
+        <button class="g-btn" id="wheelBtn" onclick="spinWheel()">Крутить</button>
       </div>
+
+      <!-- Слоты -->
       <div class="game-card">
-        <h3>👆 Кликер «Монеты»</h3>
-        <p class="small">+1 ₽ за клик. Максимум 50 ₽ в день.</p>
-        <button id="clickBtn" onclick="clickCoin()">Нажать</button>
-        <p id="clickText" style="margin-top:10px; font-size:13px; color:#555;"></p>
+        <h3>🎰 Слот-машина</h3>
+        <p class="small">Три в ряд — 15 ₽, два — 3 ₽. Раз в 30 секунд.</p>
+        <div class="game-area">
+          <div class="slots">
+            <div class="reel" id="reel0">🍒</div>
+            <div class="reel" id="reel1">🍋</div>
+            <div class="reel" id="reel2">🍇</div>
+          </div>
+        </div>
+        <div class="game-msg" id="slotsMsg"></div>
+        <button class="g-btn" id="slotsBtn" onclick="spinSlots()">Крутить барабаны</button>
       </div>
+
+      <!-- Кликер -->
+      <div class="game-card">
+        <h3>👆 Золотой кликер</h3>
+        <p class="small">+1 ₽ за клик. Лимит 50 ₽ в день.</p>
+        <div class="game-area coin-wrap">
+          <div class="coin" id="coin" onclick="clickCoin(event)">🪙</div>
+        </div>
+        <div class="game-msg" id="clickMsg">За сегодня: 0/50</div>
+      </div>
+
+      <!-- Угадай число -->
       <div class="game-card">
         <h3>🎯 Угадай число</h3>
-        <p class="small">От 1 до 5. Награда 3–5 ₽. 3 попытки в день.</p>
-        <input id="guessInput" type="number" min="1" max="5" style="width:100%; padding:10px; font-size:16px; text-align:center">
-        <button id="guessBtn" onclick="checkGuess()">Проверить</button>
-        <p id="guessMsg" style="margin-top:8px; font-size:12px; color:#555;"></p>
+        <p class="small">Загадано от 1 до 5. Верно — 3–5 ₽. 3 попытки в день.</p>
+        <div class="game-area">
+          <div class="guess-btns">
+            <button onclick="guess(1)">1</button>
+            <button onclick="guess(2)">2</button>
+            <button onclick="guess(3)">3</button>
+            <button onclick="guess(4)">4</button>
+            <button onclick="guess(5)">5</button>
+          </div>
+        </div>
+        <div class="game-msg" id="guessMsg"></div>
       </div>
-      <div class="game-card">
-        <h3>📊 Статус</h3>
-        <p id="gamesInfo" style="font-size:13px; color:#555; line-height:1.6;"></p>
-      </div>
+
     </div>
     <button class="btn secondary" onclick="go('home')">Назад</button>
   </div>
@@ -244,31 +328,37 @@
       <p class="muted">Карта: <span id="setCard"></span></p>
       <p class="muted">Срок: <span id="setExp"></span></p>
     </div>
-    <button class="btn secondary" onclick="toggleCvc()" style="margin-top:20px">Показать / скрыть CVC</button>
+    <button class="btn secondary" onclick="toggleCvc()">Показать / скрыть CVC</button>
     <button class="btn" onclick="resetAccount()">Сбросить аккаунт</button>
     <p class="muted" style="text-align:center; margin-top:10px">Удалит всё из localStorage</p>
   </div>
 
   <nav>
-    <button id="navHome" class="active" onclick="go('home')"><span style="font-size:20px">🏠</span> Домой</button>
-    <button id="navTransfer" onclick="go('transfer')"><span style="font-size:20px">💸</span> Перевод</button>
-    <button id="navEarn" onclick="go('earn')"><span style="font-size:20px">🎮</span> Заработок</button>
-    <button id="navSettings" onclick="go('settings')"><span style="font-size:20px">⚙️</span> Настройки</button>
+    <button id="navHome" class="active" onclick="go('home')"><span style="font-size:20px">🏠</span>Домой</button>
+    <button id="navTransfer" onclick="go('transfer')"><span style="font-size:20px">💸</span>Перевод</button>
+    <button id="navEarn" onclick="go('earn')"><span style="font-size:20px">🎮</span>Заработок</button>
+    <button id="navSettings" onclick="go('settings')"><span style="font-size:20px">⚙️</span>Настройки</button>
   </nav>
 </div>
 
 <script>
 const KEY = 'vbank_account';
-let acc = JSON.parse(localStorage.getItem(KEY) || 'null');
+let acc = null;
+try { acc = JSON.parse(localStorage.getItem(KEY)); } catch (e) { acc = null; }
 let showCvc = false;
 let method = 'card';
 
+const WHEEL_VALUES = [5, 1, 2, 1, 10, 1, 3, 1, 2, 1, 30, 1]; // 12 секторов по 30°
+const SLOT_ICONS = ['🍒', '🍋', '🍇', '💎', '🔔'];
+
+function freshGames() {
+  return { wheelLast: 0, slotsLast: 0, clickerDate: '', clickerToday: 0, guessDate: '', guessAttempts: 0 };
+}
+
 if (acc) {
-  acc.games = acc.games || { wheelLast: 0, clickerToday: 0, guessAttempts: 0 };
+  acc.games = Object.assign(freshGames(), acc.games || {});
   acc.history = acc.history || [];
   acc.promoLast = acc.promoLast || 0;
-} else {
-  acc = null;
 }
 
 // ---------- Регистрация ----------
@@ -279,36 +369,34 @@ function register() {
   const name = document.getElementById('regName').value.trim();
   const err = document.getElementById('regErr');
 
-  if (card.length !== 16) return err.textContent = '16 цифр в номере карты';
+  if (card.length !== 16) return err.textContent = 'Номер карты — 16 цифр';
   if (!/^(\+?\d[\d\s-]{9,14})$/.test(phone)) return err.textContent = 'Некорректный телефон';
   if (!/^\S+@\S+\.\S+$/.test(email)) return err.textContent = 'Некорректная почта';
-  if (name.split(/\s+/).length < 2) return err.textContent = 'Укажи ФИ (имя и фамилию)';
+  if (name.split(/\s+/).length < 2) return err.textContent = 'Укажите имя и фамилию';
 
   const d = new Date();
-  const expMM = String(d.getMonth() + 1).padStart(2, '0');
-  const expYY = String(d.getFullYear() + 3).slice(-2);
-  const cvc = String(Math.floor(100 + Math.random() * 900));
-
   acc = {
-    card: formatCard(card), exp: expMM + '/' + expYY, cvc, phone, email, name,
+    card: formatCard(card),
+    exp: String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getFullYear() + 3).slice(-2),
+    cvc: String(Math.floor(100 + Math.random() * 900)),
+    phone, email, name,
     balance: 0, history: [],
-    games: { wheelLast: 0, clickerToday: 0, guessAttempts: 0 },
+    games: freshGames(),
     promoLast: 0
   };
   save();
   go('home');
 }
 
-function formatCard(n) { return n.replace(/\D/g, '').slice(0,16).replace(/(.{4})/g,'$1 ').trim(); }
-function masked(card) { const g = card.split(' '); return g.slice(0,2).join(' ') + ' •• •• ' + g[3]; }
+function formatCard(n) { return n.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim(); }
+function masked(card) { const g = card.split(' '); return g.slice(0, 2).join(' ') + ' •• •• ' + g[3]; }
 function save() { localStorage.setItem(KEY, JSON.stringify(acc)); }
+function today() { return new Date().toDateString(); }
 
 function addHistory(type, text, amount) {
   if (amount <= 0) return;
-  acc.history.unshift({
-    type, text, amount,
-    date: new Date().toLocaleString('ru-RU', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})
-  });
+  acc.history.unshift({ type, text, amount,
+    date: new Date().toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) });
   if (acc.history.length > 30) acc.history.pop();
   save();
 }
@@ -317,13 +405,12 @@ function addHistory(type, text, amount) {
 function go(screen) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(screen + 'Screen').classList.add('active');
-  ['Home','Transfer','Earn','Settings'].forEach(n =>
+  ['Home', 'Transfer', 'Earn', 'Settings'].forEach(n =>
     document.getElementById('nav' + n).classList.toggle('active', n.toLowerCase() === screen));
   render();
 }
 
 function switchTab(tab) {
-  currentTab = tab;
   document.getElementById('sendBlock').style.display = tab === 'send' ? '' : 'none';
   document.getElementById('topupBlock').style.display = tab === 'topup' ? '' : 'none';
   document.getElementById('tabSend').classList.toggle('active', tab === 'send');
@@ -346,48 +433,37 @@ function toggleCvc() {
 // ---------- Операции ----------
 function doSend() {
   const err = document.getElementById('sendErr');
-  err.textContent = '';
-  err.className = 'err';
-  const to = method === 'card'
-    ? document.getElementById('toCard').value.replace(/\D/g, '')
-    : document.getElementById('toPhone').value.trim();
+  err.textContent = ''; err.className = 'err';
+  const to = method === 'card' ? document.getElementById('toCard').value.replace(/\D/g, '')
+                               : document.getElementById('toPhone').value.trim();
   const amount = parseFloat(document.getElementById('sendAmount').value);
-
-  if (method === 'card' && to.length !== 16) return err.textContent = '16 цифр';
+  if (method === 'card' && to.length !== 16) return err.textContent = 'Введите 16 цифр карты';
   if (method === 'phone' && !/^(\+?\d[\d\s-]{9,14})$/.test(to)) return err.textContent = 'Некорректный телефон';
-  if (!amount || amount <= 0) return err.textContent = 'Сумма > 0';
+  if (!amount || amount <= 0) return err.textContent = 'Сумма должна быть больше нуля';
   if (amount > acc.balance) return err.textContent = 'Недостаточно средств';
-
   acc.balance -= amount;
-  addHistory('minus', (method === 'card' ? 'Перевод на карту ' : 'Перевод на телефон ') + formatCard(to), amount);
+  addHistory('minus', (method === 'card' ? 'Перевод на карту ' : 'Перевод на телефон ') + (method === 'card' ? formatCard(to) : to), amount);
   save();
-  document.getElementById('sendAmount').value = '';
-  document.getElementById('toCard').value = '';
-  document.getElementById('toPhone').value = '';
+  ['toCard', 'toPhone', 'sendAmount'].forEach(id => document.getElementById(id).value = '');
   render();
-  err.textContent = 'Выполнено ✓';
-  err.className = 'err ok';
+  err.textContent = 'Перевод выполнен ✓'; err.className = 'err ok';
 }
 
 function doTopup() {
   const err = document.getElementById('topupErr');
-  err.textContent = '';
-  err.className = 'err';
+  err.textContent = ''; err.className = 'err';
   const src = document.getElementById('fromSource').value;
   const detail = document.getElementById('fromDetail').value.trim();
   const amount = parseFloat(document.getElementById('topupAmount').value);
-
-  if (!detail) return err.textContent = 'Укажите источник';
-  if (!amount || amount <= 0) return err.textContent = 'Сумма > 0';
-
+  if (!detail) return err.textContent = 'Укажите, откуда пополняете';
+  if (!amount || amount <= 0) return err.textContent = 'Сумма должна быть больше нуля';
   acc.balance += amount;
-  addHistory('plus', 'Пополнение: ' + src + ' («' + detail + '»)', amount);
+  addHistory('plus', 'Пополнение — ' + src + ' (' + detail + ')', amount);
   save();
   document.getElementById('fromDetail').value = '';
   document.getElementById('topupAmount').value = '';
   render();
-  err.textContent = 'Пополнено на ' + amount.toFixed(2) + ' ₽ ✓';
-  err.className = 'err ok';
+  err.textContent = 'Пополнено на ' + amount.toFixed(2) + ' ₽ ✓'; err.className = 'err ok';
 }
 
 function resetAccount() {
@@ -396,79 +472,153 @@ function resetAccount() {
   location.reload();
 }
 
-// ---------- Заработок ----------
+// ---------- Рекламный блок ----------
 function doPromo() {
-  if (acc.promoLast && (Date.now() - acc.promoLast < 10 * 60 * 1000)) return;
-  acc.balance += 3;
+  if (Date.now() - acc.promoLast < 10 * 60 * 1000) return;
   acc.promoLast = Date.now();
-  addHistory('plus', 'Акция «Видео», +3 ₽', 3);
-  save();
-  render();
-  updatePromo();
+  acc.balance += 3;
+  addHistory('plus', 'Акция «Видео» +3 ₽', 3);
+  save(); render();
+  const el = document.getElementById('promoCountdown');
+  el.textContent = '+3 ₽ зачислено ✓';
 }
 
 function updatePromo() {
-  const rest = Math.max(0, Math.round((acc.promoLast + 10*60*1000 - Date.now()) / 1000));
-  document.getElementById('promoCountdown').textContent = rest > 0 ? `Снова через ${rest} с.` : '';
-}
-
-function spinWheel() {
-  const now = Date.now();
-  if (acc.games.wheelLast && (now - acc.games.wheelLast < 60 * 60 * 1000)) {
-    document.getElementById('wheelResult').textContent = 'Кулдаун: ещё час.';
-    return;
+  const btn = document.getElementById('promoBtn');
+  const el = document.getElementById('promoCountdown');
+  const rest = 10 * 60 * 1000 - (Date.now() - acc.promoLast);
+  if (rest > 0) {
+    btn.disabled = true;
+    el.textContent = 'Следующее через ' + Math.ceil(rest / 60000) + ' мин.';
+  } else {
+    btn.disabled = false;
+    el.textContent = '';
   }
-  const prize = Math.floor(Math.random() * 30) + 1;
-  acc.balance += prize;
-  acc.games.wheelLast = now;
-  addHistory('plus', 'Колесо фортуны: +' + prize + ' ₽', prize);
-  save();
-  render();
-  document.getElementById('wheelResult').textContent = 'Выпало: ' + prize + ' ₽ ✓';
 }
 
-function clickCoin() {
+// ---------- Колесо ----------
+let wheelSpinning = false;
+function spinWheel() {
+  if (wheelSpinning) return;
+  const msg = document.getElementById('wheelMsg');
+  if (Date.now() - acc.games.wheelLast < 60 * 60 * 1000) {
+    msg.textContent = 'Кулдаун: крути через час.'; return;
+  }
+  wheelSpinning = true;
+  acc.games.wheelLast = Date.now();
+  save();
+
+  const wheel = document.getElementById('wheel');
+  const target = Math.floor(Math.random() * 360); // итоговый угол
+  const current = (parseFloat(wheel.dataset.angle) || 0);
+  const delta = 360 * 5 + (target - (current % 360) + 360) % 360;
+  const finalAngle = current + delta;
+  wheel.dataset.angle = finalAngle;
+  wheel.style.transform = 'rotate(' + finalAngle + 'deg)';
+
+  msg.textContent = 'Крутится…';
+  setTimeout(() => {
+    // сектор под стрелкой (стрелка сверху)
+    const idx = Math.floor(((360 - (finalAngle % 360)) % 360) / 30);
+    const prize = WHEEL_VALUES[idx];
+    acc.balance += prize;
+    addHistory('plus', 'Колесо фортуны +' + prize + ' ₽', prize);
+    save(); render();
+    msg.textContent = prize >= 10 ? '🎉 Джекпот! +' + prize + ' ₽' : 'Выпало: ' + prize + ' ₽';
+    wheelSpinning = false;
+  }, 3100);
+}
+
+// ---------- Слоты ----------
+let slotsSpinning = false;
+function spinSlots() {
+  if (slotsSpinning) return;
+  const msg = document.getElementById('slotsMsg');
+  if (Date.now() - acc.games.slotsLast < 30 * 1000) {
+    msg.textContent = 'Кулдаун 30 секунд.'; return;
+  }
+  slotsSpinning = true;
+  acc.games.slotsLast = Date.now();
+  save();
+
+  const results = [0, 0, 0].map(() => Math.floor(Math.random() * SLOT_ICONS.length));
+  const reels = [0, 1, 2].map(i => document.getElementById('reel' + i));
+  reels.forEach(r => r.classList.add('spinning'));
+
+  const timers = [];
+  reels.forEach((reel, i) => {
+    const tick = setInterval(() => {
+      reel.textContent = SLOT_ICONS[Math.floor(Math.random() * SLOT_ICONS.length)];
+    }, 90);
+    timers.push({ tick, reel, i, stop: 700 + i * 500 });
+  });
+
+  timers.forEach(t => setTimeout(() => {
+    clearInterval(t.tick);
+    t.reel.classList.remove('spinning');
+    t.reel.textContent = SLOT_ICONS[results[t.i]];
+    if (t.i === 2) {
+      slotsSpinning = false;
+      let prize = 0;
+      if (results[0] === results[1] && results[1] === results[2]) prize = 15;
+      else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) prize = 3;
+      if (prize) {
+        acc.balance += prize;
+        addHistory('plus', 'Слоты +' + prize + ' ₽', prize);
+        save(); render();
+        msg.textContent = prize === 15 ? '🎉 Три в ряд! +15 ₽' : 'Пара! +' + prize + ' ₽';
+      } else {
+        msg.textContent = 'Не повезло. Ещё попытка?';
+      }
+    }
+  }, 700 + 0 * 500 + 0)); // см. stop ниже
+  // точная остановка каждого барабана:
+  timers.forEach(t => { t._stopAt = 700 + t.i * 500; });
+  timers.forEach(t => { /* обработчик выше уже ставит setTimeout через t.stop */ });
+}
+
+// ---------- Кликер ----------
+function clickCoin(e) {
+  if (acc.games.clickerDate !== today()) { acc.games.clickerDate = today(); acc.games.clickerToday = 0; }
   if (acc.games.clickerToday >= 50) {
-    document.getElementById('clickText').textContent = 'Лимит на день: 50 ₽.';
+    document.getElementById('clickMsg').textContent = 'Дневной лимит 50 ₽ достигнут.';
     return;
   }
   acc.games.clickerToday += 1;
   acc.balance += 1;
-  addHistory('plus', 'Кликер: +1 ₽', 1);
-  save();
-  render();
-  document.getElementById('clickText').textContent = 'За сегодня: ' + acc.games.clickerToday + '/50';
+  addHistory('plus', 'Кликер +1 ₽', 1);
+  save(); render();
+  const msg = document.getElementById('clickMsg');
+  msg.textContent = 'За сегодня: ' + acc.games.clickerToday + '/50';
+
+  // всплывающий «+1 ₽»
+  const wrap = e.target.parentElement;
+  const f = document.createElement('div');
+  f.className = 'float-plus';
+  f.textContent = '+1 ₽';
+  f.style.left = (e.offsetX - 10) + 'px';
+  f.style.top = (e.offsetY - 10) + 'px';
+  wrap.appendChild(f);
+  setTimeout(() => f.remove(), 700);
 }
 
-function checkGuess() {
-  const val = parseInt(document.getElementById('guessInput').value);
-  if (isNaN(val) || val < 1 || val > 5) {
-    document.getElementById('guessMsg').textContent = 'Число от 1 до 5';
-    return;
-  }
-  if (acc.games.guessAttempts >= 3) {
-    document.getElementById('guessMsg').textContent = '3 попытки — лимит дня.';
-    return;
-  }
+// ---------- Угадай число ----------
+function guess(val) {
+  const msg = document.getElementById('guessMsg');
+  if (acc.games.guessDate !== today()) { acc.games.guessDate = today(); acc.games.guessAttempts = 0; }
+  if (acc.games.guessAttempts >= 3) { msg.textContent = '3 попытки на день уже израсходованы.'; return; }
   acc.games.guessAttempts += 1;
+
   const correct = Math.floor(Math.random() * 5) + 1;
-  const prize = (val === correct) ? (Math.floor(Math.random() * 3) + 3) : 0;
+  const prize = val === correct ? Math.floor(Math.random() * 3) + 3 : 0;
   if (prize) {
     acc.balance += prize;
-    addHistory('plus', 'Угадай число: верно! +' + prize + ' ₽', prize);
+    addHistory('plus', 'Угадай число +' + prize + ' ₽', prize);
   }
-  save();
-  render();
-  document.getElementById('guessMsg').textContent = (val === correct ? 'Верно! +' + prize + ' ₽' : 'Нет, было «' + correct + '». Ещё попытка?');
-}
-
-function renderGames() {
-  if (!acc) return;
-  document.getElementById('gamesInfo').innerHTML =
-    '• Колесо: последняя попытка — ' + (acc.games.wheelLast ? new Date(acc.games.wheelLast).toLocaleTimeString() : 'никогда') + '\n' +
-    '• Кликер: ' + acc.games.clickerToday + '/50 ₽ за день\n' +
-    '• Угадай число: ' + acc.games.guessAttempts + '/3';
-  updatePromo();
+  save(); render();
+  msg.textContent = val === correct
+    ? '🎉 Верно! +' + prize + ' ₽ (попытка ' + acc.games.guessAttempts + '/3)'
+    : 'Было «' + correct + '». Попытка ' + acc.games.guessAttempts + '/3';
 }
 
 // ---------- Отрисовка ----------
@@ -478,7 +628,7 @@ function render() {
   document.getElementById('cardExp').textContent = acc.exp;
   document.getElementById('cardCvc').textContent = showCvc ? acc.cvc : '•••';
   document.getElementById('cardHolder').textContent = acc.name;
-  document.getElementById('balance').textContent = acc.balance.toLocaleString('ru-RU', {minimumFractionDigits:2, maximumFractionDigits:2});
+  document.getElementById('balance').textContent = acc.balance.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   document.getElementById('setName').textContent = acc.name;
   document.getElementById('setPhone').textContent = acc.phone;
@@ -486,30 +636,25 @@ function render() {
   document.getElementById('setCard').textContent = acc.card;
   document.getElementById('setExp').textContent = acc.exp;
 
-  const list = document.getElementById('historyList');
-  if (!acc.history || acc.history.length === 0) {
-    list.innerHTML = '<p class="muted">Пока пусто</p>';
-    return;
-  }
-  list.innerHTML = acc.history.slice(0, 20).map(h =>
-    `<div class="item"><div>${h.text}<br><span class="muted">${h.date}</span></div>
-     <div class="${h.type}">${h.type === 'plus' ? '+' : '−'}${h.amount.toLocaleString('ru-RU', {minimumFractionDigits:2})} ₽</div></div>`
-  ).join('');
+  if (acc.games.clickerDate !== today()) { acc.games.clickerDate = today(); acc.games.clickerToday = 0; }
+  document.getElementById('clickMsg').textContent = 'За сегодня: ' + acc.games.clickerToday + '/50';
 
-  renderGames();
+  const list = document.getElementById('historyList');
+  if (!acc.history.length) {
+    list.innerHTML = '<p class="muted">Пока пусто</p>';
+  } else {
+    list.innerHTML = acc.history.slice(0, 20).map(h =>
+      `<div class="item"><div>${h.text}<br><span class="muted">${h.date}</span></div>
+       <div class="${h.type}">${h.type === 'plus' ? '+' : '−'}${h.amount.toLocaleString('ru-RU', { minimumFractionDigits: 2 })} ₽</div></div>`
+    ).join('');
+  }
+  updatePromo();
 }
 
-// ---------- Маски -->
+// ---------- Маски ----------
 ['regCard', 'toCard'].forEach(id => {
   document.getElementById(id).addEventListener('input', e => {
-    const v = e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
-    e.target.value = v;
-  });
-});
-['sendAmount', 'topupAmount'].forEach(id => {
-  document.getElementById(id).addEventListener('input', e => {
-    const n = parseFloat(e.target.value) || 0;
-    e.target.value = n.toFixed(2);
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
   });
 });
 
